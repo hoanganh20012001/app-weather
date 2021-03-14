@@ -32,20 +32,27 @@ const app = {
     },
     searchCity() {
         const inputCity = $('.search-bar')
-        inputCity.onchange = function(e) {
-            app.fecthWeahter(e.target.value)
-        }
+        inputCity.addEventListener('change', function(e) {
+            const city = e.target.value
+            const store = app.storage()
+            store.set(city)
+            if (city.length > 0) {
+                app.fecthWeahter(city)
+            }
+        })
         inputCity.value = ''
     },
     handleEvents() {
         const btnSearch = $('.search button')
+        const store = app.storage()
+        const city = store.get()
+        this.fecthWeahter(city)
 
         btnSearch.addEventListener('click', function() {
             app.searchCity()
         })
 
         btnSearch.addEventListener("keyup", function (event) {
-            console.log(event.key)
             if (event.key === "Enter") {
               app.searchCity()
             }
@@ -54,6 +61,17 @@ const app = {
     run() {
         this.handleEvents()
         this.searchCity()
+    },
+    storage() {
+        const KEY_STORAGE = 'app weather'
+        return {
+            get() {
+                return JSON.parse(localStorage.getItem(KEY_STORAGE)) || ''
+            },
+            set(city) {
+                localStorage.setItem(KEY_STORAGE, JSON.stringify(city))
+            }
+        }
     }
 }
 app.run()
